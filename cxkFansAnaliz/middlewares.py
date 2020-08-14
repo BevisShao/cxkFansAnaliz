@@ -20,7 +20,7 @@ import requests
 from scrapy import signals
 from scrapy.http import HtmlResponse
 import redis
-import random
+import random, os
 
 
 class CxkfansanalizSpiderMiddleware(object):
@@ -65,20 +65,31 @@ class CxkfansanalizSpiderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
 class PhantomjsMiddleware(object):
+    host = os.environ.get('ISDOCKER')
+    caps = DesiredCapabilities.PHANTOMJS
+    caps["phantomjs.page.settings.userAgent"] = \
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'
+
     def __init__(self, timeout, REDIS_KEY, REDIS_HOST, REDIS_PORT, REDIS_PASSWORD):
         # 设置浏览器请求头
         self.db_redis = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, decode_responses=True)
         self.REDIS_KEY = REDIS_KEY
         self.logger = logging.getLogger('PhantomjsMiddleWare')
-        # self.cookies_pool_url = cookies_pool_url
-        # self.dcap = dict(DesiredCapabilities.PHANTOMJS)
-        # self.dcap["phantomjs.page.settings.userAgent"] = (
-        #     "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36")
         self.timeout = timeout
-        # self.browser = webdriver.PhantomJS(desired_capabilities=self.dcap)
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        self.browser = webdriver.Chrome(executable_path=r'E:\InstallLocation\Chrome\_71_0_3578\chromedriver.exe', options=chrome_options)
+        self.logger.info('host = {}'.format(self.host))
+        if self.host:
+            self.browser = webdriver.Remote(
+                # command_executor='http://192.168.0.112:8910', desired_capabilities=caps)
+                command_executor='http://{}:8910'.format(self.host), desired_capabilities=self.caps)
+            # command_executor='http://phantomjs:8910', desired_capabilities=caps)
+
+        else:
+            self.browser = webdriver.PhantomJS(desired_capabilities=self.caps)
+        self.browser.maximize_window()
+        # chrome_options = Options()
+        # chrome_options.add_argument('--headless')
+        # self.browser = webdriver.Chrome(executable_path=r'E:\InstallLocation\Chrome\_71_0_3578\chromedriver.exe', options=chrome_options)
+        # self.browser = webdriver.Chrome(options=chrome_options)
         self.dict_cookies = self.get_random_cookies()
         self.wait = WebDriverWait(self.browser, self.timeout)
 
@@ -106,7 +117,8 @@ class PhantomjsMiddleware(object):
     #         return cookies
 
     def __del__(self):
-        self.browser.close()
+        if self.__dict__.get('browser'):
+            self.browser.close()
 
     def process_request(self, request, spider):
         '''
@@ -124,9 +136,9 @@ class PhantomjsMiddleware(object):
                         #         'httpOnly': False,
                         'name': cookie_name,
                         'value': cookie_value,
-                        'expiry': None,
+                        # 'expiry': None,
                         'secure': True,
-                        'path': '/'
+                        # 'path': '/'
                     })
                 except exceptions.UnableToSetCookieException:
                     pass

@@ -13,13 +13,15 @@ BOT_NAME = 'cxkFansAnaliz'
 
 SPIDER_MODULES = ['cxkFansAnaliz.spiders']
 NEWSPIDER_MODULE = 'cxkFansAnaliz.spiders'
-WEIBO_COOKIES_URL = 'http://localhost:5000/weibo/random'
+# WEIBO_COOKIES_URL = 'http://localhost:5000/weibo/random'
+WEIBO_COOKIES_URL = 'cookiespool:5000/weibo/random'
 REDIRECT_ENABLED = True
 # COOKIES_DEBUG = True
 SELENIUM_TIMEOUT = 10
 service_args = ['--ignore-ssl-errors=true', '--ssl-protocol=TLSv1']
 # Redis数据库地址
-REDIS_HOST = '127.0.0.1'
+# REDIS_HOST = '127.0.0.1'
+REDIS_HOST = '192.168.0.112'
 # Redis端口
 REDIS_PORT = 6379
 # Redis密码，如无填None
@@ -27,6 +29,7 @@ REDIS_PASSWORD = None
 REDIS_KEY = 'cookies:weibo'
 
 MONGO_URI = 'localhost'
+MONGO_URI_DOCKER = 'mongodb'
 MONGO_DATABASE = 'cxkFans'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'cxkFansAnaliz (+http://www.yourdomain.com)'
