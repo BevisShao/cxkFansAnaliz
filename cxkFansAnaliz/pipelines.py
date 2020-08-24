@@ -9,6 +9,8 @@
 import pymongo
 import logging
 import os
+import time
+from twisted.internet import defer, reactor
 
 class CxkfansanalizPipeline(object):
     collection_name = 'cxkFans_items'
@@ -35,10 +37,20 @@ class CxkfansanalizPipeline(object):
         self.db = self.client[self.mongo_db]
         self.logger.info('open_spider()')
 
+    @defer.inlineCallbacks
     def process_item(self, item, spider):
+        out = defer.Deferred()
+        reactor.callInThread(self._insert, item, out)
+        yield out
+        defer.returnValue(item)
         self.logger.info('mongodb')
+        # self.db[self.collection_name].insert(dict(item))
+        # return item
+
+    def _insert(self, item ,out):
+        time.sleep(10)
         self.db[self.collection_name].insert(dict(item))
-        return item
+        reactor.callFromThread(out.callback, item)
 
     def close_spider(self, spider):
         self.client.close()

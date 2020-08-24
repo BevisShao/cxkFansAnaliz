@@ -28,6 +28,8 @@ REDIS_PORT = 6379
 REDIS_PASSWORD = None
 REDIS_KEY = 'cookies:weibo'
 
+PHANTOMJS_HOST_DOCKER = 'phantomjs_cxk'
+
 MONGO_URI = 'localhost'
 MONGO_URI_DOCKER = 'mongodb'
 MONGO_DATABASE = 'cxkFans'

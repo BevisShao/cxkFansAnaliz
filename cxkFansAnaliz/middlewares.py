@@ -21,6 +21,7 @@ from scrapy import signals
 from scrapy.http import HtmlResponse
 import redis
 import random, os
+from cxkFansAnaliz.settings import PHANTOMJS_HOST_DOCKER
 
 
 class CxkfansanalizSpiderMiddleware(object):
@@ -80,7 +81,7 @@ class PhantomjsMiddleware(object):
         if self.host:
             self.browser = webdriver.Remote(
                 # command_executor='http://192.168.0.112:8910', desired_capabilities=caps)
-                command_executor='http://{}:8910'.format(self.host), desired_capabilities=self.caps)
+                command_executor='http://{}:8911'.format(PHANTOMJS_HOST_DOCKER), desired_capabilities=self.caps)
             # command_executor='http://phantomjs:8910', desired_capabilities=caps)
 
         else:
