@@ -22,6 +22,8 @@ class CxkfansanalizItem(Item):
     follow_num = Field()
     # 粉丝的数量
     fans_num = Field()
+    # 粉丝的粉丝列表
+    fans_lists_url = Field()
     # 个人动态数量
     article_num = Field()
     # 个人等级

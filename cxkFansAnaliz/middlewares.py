@@ -22,7 +22,7 @@ from scrapy.http import HtmlResponse
 import redis
 import random, os
 from cxkFansAnaliz.settings import PHANTOMJS_HOST_DOCKER
-
+from scrapy.exceptions import IgnoreRequest
 
 class CxkfansanalizSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -276,27 +276,30 @@ class CxkfansanalizDownloaderMiddleware(object):
 
         contents = response.text
         contents_re = re.search('欧盟隐私协议弹窗.*?>(.*?)</html>', contents, re.S)
-        results = contents_re.group(1)
-        print('downloadmiddleware里的response{}'.format(results))
-        htmls = []
-        patterns1 = re.compile('.*?<script>FM\.view\((.*?)\)</script>', re.S)
-        patterns2 = re.compile('\t*\n*\r*', re.S)
-        scripts = re.findall(patterns1, results)
-        if scripts:
-            print(scripts)
-            for script in scripts:
-                print('获得的scrpt:{}'.format(script))
-                html = (json.loads(script)).get('html')
-                if html:
-                    html_re = re.sub(patterns2, '', html)
-                    htmls.append(html_re)
-                # htmls.append((json.loads(scripts.lstrip('<script>FM.view(').rstrip(')</script>')).get('html')).replace(r'\r', '').replace(r'\n', '').replace(r'\t', ''))
-            # response.replace(body=bytes(''.join(htmls), encoding='utf-16'))
-            body = bytes(''.join(htmls), encoding='utf-16')
-        with open('处理后的response.html', 'wb') as f:
-            # f.write(response.body)
-            f.write(bytes(''.join(htmls), encoding='utf-16'))
-        return HtmlResponse(url=request.url, status=200, body=body)
+        if contents_re:
+            results = contents_re.group(1)
+            print('downloadmiddleware里的response{}'.format(results))
+            htmls = []
+            patterns1 = re.compile('.*?<script>FM\.view\((.*?)\)</script>', re.S)
+            patterns2 = re.compile('\t*\n*\r*', re.S)
+            scripts = re.findall(patterns1, results)
+            if scripts:
+                print(scripts)
+                for script in scripts:
+                    print('获得的scrpt:{}'.format(script))
+                    html = (json.loads(script)).get('html')
+                    if html:
+                        html_re = re.sub(patterns2, '', html)
+                        htmls.append(html_re)
+                    # htmls.append((json.loads(scripts.lstrip('<script>FM.view(').rstrip(')</script>')).get('html')).replace(r'\r', '').replace(r'\n', '').replace(r'\t', ''))
+                # response.replace(body=bytes(''.join(htmls), encoding='utf-16'))
+                body = bytes(''.join(htmls), encoding='utf-16')
+            with open('处理后的response.html', 'wb') as f:
+                # f.write(response.body)
+                f.write(bytes(''.join(htmls), encoding='utf-16'))
+            return HtmlResponse(url=request.url, status=200, body=body)
+        else:
+            return IgnoreRequest
 
     def process_exception(self, request, exception, spider):
         # Called when a download handler or a process_request()
@@ -306,7 +309,7 @@ class CxkfansanalizDownloaderMiddleware(object):
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        pass
+        return None
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)

@@ -11,10 +11,37 @@
 
 BOT_NAME = 'cxkFansAnaliz'
 
+DOMAIN_HOST = 'https://weibo.com'
+
 SPIDER_MODULES = ['cxkFansAnaliz.spiders']
 NEWSPIDER_MODULE = 'cxkFansAnaliz.spiders'
-# WEIBO_COOKIES_URL = 'http://localhost:5000/weibo/random'
-WEIBO_COOKIES_URL = 'cookiespool:5000/weibo/random'
+
+# scrapy-redis
+# 调度器
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+
+# 去重
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+
+# 调度队列
+# SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.PriorityQueue"
+# SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
+# SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.LifoQueue"
+
+# 持久化
+# 默认是False，scrapy-redis会在爬取完成后清空队列和去重指纹集合。如果不想清空，设置为True。
+# 强制中断爬虫运行不会自动清空。
+# SCHEDULER_PERSIST = True
+
+# 配置重爬
+# 默认False。 如果配置了持久化或者强制中断爬虫，结合不被清空，那么重启后会接着上次爬取，
+# 但是如果想重新爬取，就设置为True。
+# SCHEDULER_FLUSH_ON_START = True
+
+
+
+WEIBO_COOKIES_URL = 'http://localhost:5000/weibo/random'
+# WEIBO_COOKIES_URL = 'cookiespool:5000/weibo/random'
 REDIRECT_ENABLED = True
 # COOKIES_DEBUG = True
 SELENIUM_TIMEOUT = 10
@@ -71,9 +98,9 @@ SPIDER_MIDDLEWARES = {
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   # 'cxkFansAnaliz.middlewares.WeiboCookiesMiddleWare': 543,
-   # 'cxkFansAnaliz.middlewares.CxkfansanalizDownloaderMiddleware': 542,
-   'cxkFansAnaliz.middlewares.PhantomjsMiddleware': 542,
+   'cxkFansAnaliz.middlewares.WeiboCookiesMiddleWare': 543,
+   'cxkFansAnaliz.middlewares.CxkfansanalizDownloaderMiddleware': 542,
+   # 'cxkFansAnaliz.middlewares.PhantomjsMiddleware': 541,
 
 }
 

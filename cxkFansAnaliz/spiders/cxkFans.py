@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import scrapy
+import scrapy_redis
 import logging
 from scrapy import selector
 from cxkFansAnaliz.items import CxkfansanalizItem
 from scrapy.http import Request
 from urllib.parse import quote
 import re
+from cxkFansAnaliz.settings import DOMAIN_HOST
 
 
 class CxkfansSpider(scrapy.Spider):
@@ -43,6 +45,8 @@ class CxkfansSpider(scrapy.Spider):
                 item['follow_num'] = li.xpath('.//div[@class="info_connect"]/span[1]/em/a/text()').extract_first()
                 # 粉丝的数量
                 item['fans_num'] = li.xpath('.//div[@class="info_connect"]/span[2]/em/a/text()').extract_first()
+                # 粉丝列表
+                item['fans_lists_url'] = li.xpath('.//div[@class="info_connect"]/span[2]/em/a/@href').extract_first()
                 # 个人动态数量
                 item['article_num'] = li.xpath('.//div[@class="info_connect"]/span[3]/em/a/text()').extract_first()
                 # 个人等级
@@ -72,6 +76,8 @@ class CxkfansSpider(scrapy.Spider):
                 # print('单个用户个人信息：{}'.format(item))
                 yield Request(url='https://weibo.com/{}/info'.format(item['id']),
                               callback=self.parse_fans_space, meta={'item': item})
+                for i in range(1, 6):
+                    yield Request(url=DOMAIN_HOST+'/p/100505' + item['id'] + '/follow?relate=fans&page={}#Pl_Official_HisRelation__59'.format(i), callback=self.parse, dont_filter=False)
         elif response_code == 404 or response_code == 504:
             print('网页404')
         elif response_code == 503:
