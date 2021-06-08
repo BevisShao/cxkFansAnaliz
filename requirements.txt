@@ -19,7 +19,7 @@ jmespath==0.10.0
 lxml==4.5.1
 MarkupSafe==1.1.1
 parsel==1.6.0
-Pillow==7.1.2
+Pillow==8.2.0
 Pillow-PIL==0.1.dev0
 Protego==0.1.16
 pyasn1==0.4.8
